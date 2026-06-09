@@ -111,6 +111,18 @@ go test ./...
 | `-t` | `location` | 测试场景：`location`、`register`、`heartbeat`、`mixed` |
 | `-b` | `500` | 批次连接大小 |
 
+### 压测实测结果
+
+2026-06-09 在 Windows 本机回环地址 `127.0.0.1` 上，对 `cmd/highperf` 高性能服务端执行 `location` 场景压测：
+
+```bash
+go run ./test/stress -s 127.0.0.1:8080 -c 1000 -d 30 -r 10 -t location -b 50
+```
+
+实测结果：`1000/1000` 连接成功，`304236` 条消息全部成功，吞吐约 `9809.82 msg/s`，平均延迟约 `436.295us`，成功率 `100%`，服务端 `errorCount=0`，Worker 队列无堆积。
+
+注意：Windows 本机回环压测时，`-b 500` 这类较大的突发建连批次可能受到客户端侧端口、连接队列或 TCP 栈调度影响，导致连接错误和并发表现偏低；这不代表 SDK 服务端并发能力上限。复测建议使用 `-b 50` 或更小批次逐步建连。
+
 ## 核心用法
 
 ### 协议编解码
@@ -235,6 +247,7 @@ jtt-808-go-sdk/
 - [架构说明](docs/architecture.md)
 - [技术设计](docs/technical-design.md)
 - [部署指南](docs/deployment.md)
+- [压测报告](docs/stress-test-report.md)
 - [基础示例](examples/basic/README.md)
 - [进阶示例](examples/advanced/README.md)
 - [自定义扩展示例](examples/custom/README.md)
